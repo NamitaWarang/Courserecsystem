@@ -8,6 +8,7 @@ import numpy as np
 import pyrebase
 from datetime import datetime
 import json
+import functools
 
 
 
@@ -92,41 +93,72 @@ def search_term_if_not_found(search_term, df):
         return search_results
     else:
         return pd.DataFrame()
-    
+
+def fb(course_title):     
+        ref = db.child('history').push({
+        "user_id": user_id,
+        "course_title": course_title
+        })
+
+# Create a custom function to handle the "Interested" button click
+def on_interested_button_click(course_title):
+    st.session_state.interested_courses.append(course_title)
+    fb(course_title)
 
 # Function to display course recommendations as cards
-
 def display_course_cards(data):
-    for _,row in data.iterrows():
-    
+    for idx, row in data.iterrows():
         st.write(f"**Course Title:** {row['course_title']}")
         st.write(f"**Link:** [{row['url']}]({row['url']})")
         st.write(f"**Is paid?:** {row['is_paid']}")
         st.write(f"**Level:** {row['level']}")
         st.write(f"**Subject:** {row['subject']}")
         st.write(f"**Language:** {row['language']}")
+        button_key = f"interested_button_{idx}"
+        # Use functools.partial to pass the course title to the on_click function
+        on_click = functools.partial(on_interested_button_click, row['course_title'])
+        if st.button('Interested', key=button_key, on_click=on_click):
+            # Do not append the course title here, it's done in on_interested_button_click
+            pass
+
+# Function to display course recommendations as cards
+
+# def display_course_cards(data):
+#     for idx,row in data.iterrows():
+    
+#         st.write(f"**Course Title:** {row['course_title']}")
+#         st.write(f"**Link:** [{row['url']}]({row['url']})")
+#         st.write(f"**Is paid?:** {row['is_paid']}")
+#         st.write(f"**Level:** {row['level']}")
+#         st.write(f"**Subject:** {row['subject']}")
+#         st.write(f"**Language:** {row['language']}")
+#         button_key = f"interested_button_{idx}"
+
+#         if st.button('Interested', key=button_key):
+#             st.session_state.interested_courses.append(row['course_title'])
+#             fb(row['course_title'])
+
+        # st.button('Interested', on_click=fb(row['course_title']))
+        # if st.button('Interested', key=button_key):
+        #     st.session_state.interested_courses.append(row['course_title']) 
+        #     fb(st.session_state.interested_courses)
         
-        # Add the course title to the session state
-        st.session_state.interested_courses.append(row['course_title']) 
+
         # db.child(user_id).child('Interested').push(st.session_state.interested_courses)
         # Use a button to indicate interest
 
         # Generate a unique key for each button
-        # button_key = f"interested_button_{idx}"
-        if st.checkbox("Interested"):
-            st.write("Hello")
-           
-            try:
-                # Perform the Firebase operation
-                res = db.child('history').push({
-                    "user_id": user_id,
-                    "course_title": st.session_state.interested_courses
-                })
-
-            except:
-                st.write("Try try till you succeed!")
-        # print(st.session_state.interested_courses)
+        
+            # # Add the course title to the session state
+            # st.session_state.interested_courses.append(row['course_title']) 
+            # ref = db.child('history').push({
+            #     "user_id": user_id,
+            #     "course_title": st.session_state.interested_courses
+            #     })
+        
         st.write("----")
+
+
 
 def app():
     st.markdown("<h1 style='text-align: center; color: purple;'>Course Dekho</h1>", unsafe_allow_html=True)
