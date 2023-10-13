@@ -9,6 +9,8 @@ import pyrebase
 from datetime import datetime
 import json
 import functools
+import requests
+import random
 
 
 
@@ -51,36 +53,61 @@ def load_data(data):
     df = pd.read_csv(data)
     return df
 
-def vectorize_text_to_cosine_mat(data):
+def vectorize_text_to_cosine_mat(data, title):
     count_vect = CountVectorizer()
-    
+
     # Replace np.nan values with empty strings
     data.fillna("", inplace=True)
-    
-    cv_mat = count_vect.fit_transform(data)
-    # Get the cosine
-    cosine_sim_mat = cosine_similarity(cv_mat)
-    return cosine_sim_mat
 
+    cv_mat = count_vect.fit_transform(data['course_title'])
+
+    # Compute the cosine similarity between all courses
+    cosine_sim_mat = cosine_similarity(cv_mat)
+
+    return cosine_sim_mat
 
 # Function to get recommendations using cosine similarity
 def get_recommendation(title, cosine_sim_mat, df, num_of_rec=10):
-    # indices of the course
-    course_indices = pd.Series(df.index, index=df['course_title']).drop_duplicates()
-    # Index of course
-    idx = course_indices[title]
+    # Get the index of the specific course
+    specific_course_index = df[df['course_title'] == title].index[0]
 
-    # Look into the cosine matrix for that index
-    sim_scores = list(enumerate(cosine_sim_mat[idx]))
-    sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
-    selected_course_indices = [i[0] for i in sim_scores[1:num_of_rec + 1]]
-    selected_course_scores = [i[1] for i in sim_scores[1:num_of_rec + 1]]
+    # Get the cosine similarity scores for the specific course
+    sim_scores = cosine_sim_mat[specific_course_index]
+
+    # Sort the courses by similarity score in descending order and exclude the specific course
+    sorted_indices = np.argsort(sim_scores)[::-1]
+    recommended_indices = [idx for idx in sorted_indices if idx != specific_course_index]
+    recommended_courses = df.iloc[recommended_indices]
+
+    return recommended_courses.head(num_of_rec)
 
     # Get the dataframe & title
-    result_df = df.iloc[selected_course_indices]
-    result_df['similarity_score'] = selected_course_scores
-    final_recommended_courses = result_df[['course_title', 'similarity_score', 'url']]
-    return final_recommended_courses.head(num_of_rec)
+    # result_df = df.iloc[selected_course_indices]
+    # result_df['similarity_score'] = selected_course_scores
+    # final_recommended_courses = result_df[['course_title', 'similarity_score', 'url']]
+    # return final_recommended_courses
+
+
+
+# Function to get recommendations using cosine similarity
+# def get_recommendation(title, cosine_sim_mat, df, num_of_rec=10):
+#     # indices of the course
+#     course_indices = pd.Series(df.index, index=df['course_title']).drop_duplicates()
+#     # Index of course
+#     idx = course_indices[title]
+
+#     # Look into the cosine matrix for that index
+#     sim_scores = list(enumerate(cosine_sim_mat[idx]))
+#     sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
+#     selected_course_indices = [i[0] for i in sim_scores[1:num_of_rec + 1]]
+#     selected_course_scores = [i[1] for i in sim_scores[1:num_of_rec + 1]]
+
+#     # Get the dataframe & title
+#     result_df = df.iloc[selected_course_indices]
+#     result_df['similarity_score'] = selected_course_scores
+#     final_recommended_courses = result_df[['course_title', 'similarity_score', 'url']]
+#     return final_recommended_courses.head(num_of_rec)
+
 
 @st.cache_data
 # def search_term_if_not_found(term,df):
@@ -114,48 +141,12 @@ def display_course_cards(data):
         st.write(f"**Level:** {row['level']}")
         st.write(f"**Subject:** {row['subject']}")
         st.write(f"**Language:** {row['language']}")
-        button_key = f"interested_button_{idx}"
+        button_key = f"interested_button_{idx}_{random.randint(1, 100000)}"
         # Use functools.partial to pass the course title to the on_click function
         on_click = functools.partial(on_interested_button_click, row['course_title'])
         if st.button('Interested', key=button_key, on_click=on_click):
             # Do not append the course title here, it's done in on_interested_button_click
             pass
-
-# Function to display course recommendations as cards
-
-# def display_course_cards(data):
-#     for idx,row in data.iterrows():
-    
-#         st.write(f"**Course Title:** {row['course_title']}")
-#         st.write(f"**Link:** [{row['url']}]({row['url']})")
-#         st.write(f"**Is paid?:** {row['is_paid']}")
-#         st.write(f"**Level:** {row['level']}")
-#         st.write(f"**Subject:** {row['subject']}")
-#         st.write(f"**Language:** {row['language']}")
-#         button_key = f"interested_button_{idx}"
-
-#         if st.button('Interested', key=button_key):
-#             st.session_state.interested_courses.append(row['course_title'])
-#             fb(row['course_title'])
-
-        # st.button('Interested', on_click=fb(row['course_title']))
-        # if st.button('Interested', key=button_key):
-        #     st.session_state.interested_courses.append(row['course_title']) 
-        #     fb(st.session_state.interested_courses)
-        
-
-        # db.child(user_id).child('Interested').push(st.session_state.interested_courses)
-        # Use a button to indicate interest
-
-        # Generate a unique key for each button
-        
-            # # Add the course title to the session state
-            # st.session_state.interested_courses.append(row['course_title']) 
-            # ref = db.child('history').push({
-            #     "user_id": user_id,
-            #     "course_title": st.session_state.interested_courses
-            #     })
-        
         st.write("----")
 
 
@@ -170,14 +161,39 @@ def app():
     if choice == "Home":
         st.subheader("Home")
         st.markdown("<h3 style='text-align: left; color: purple;'>Recommended Courses:</h>", unsafe_allow_html=True)
-        
+         
+       
+        if user_id:
+            url = f"{firebaseConfig['databaseURL']}/history.json"
+            response = requests.get(url)
 
-    
+            if response.status_code == 200:
+                data = response.json()
+                course_titles = []
+
+                for key, value in data.items():
+                    if "user_id" in value and value["user_id"] == user_id and "course_title" in value:
+                        course_titles.append(value["course_title"])
+
+                if course_titles:
+                    st.write("Course Titles for user_id:", user_id)
+                    for title in course_titles:
+                        st.write(title)
+                        cosine_sim_mat = vectorize_text_to_cosine_mat(df,title)   
+                        recommendations = get_recommendation(title,cosine_sim_mat,df,5)
+                        display_course_cards(recommendations)
+
+                else:
+                    st.write("No course titles found for user_id:", user_id)
+            else:
+                st.write("Failed to retrieve data from the Firebase Realtime Database.")
+   
+
 
         
     if choice == "Search":
         st.markdown("<h3 style='text-align: left; color: purple;'>Search for courses</h>", unsafe_allow_html=True)
-        cosine_sim_mat = vectorize_text_to_cosine_mat(df['course_title'])
+       
         search_term = st.text_input("Search")
         if st.button("Search"):
             if search_term is not None:
