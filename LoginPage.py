@@ -1,6 +1,8 @@
 import streamlit as st
 import pyrebase
 from datetime import datetime
+from streamlit_option_menu import option_menu
+import streamlit.components.v1 as components
 
 st.set_page_config(initial_sidebar_state="collapsed")
 #Configuration key
@@ -24,6 +26,46 @@ auth = firebase.auth()
 db = firebase.database()
 storage = firebase.storage()
 
+# shape_html = """
+# <div style="width: 0;
+#             height: 0;
+#             border-left: 800px solid transparent;
+#             border-right: 233px solid transparent;
+#             border-bottom: 120px solid ;
+#             opacity: 0.3;
+#             position: absolute;
+#             bottom: 0.2;
+#             left: 50%;
+#             transform: translate(-50%);
+#             transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+#             color: ">
+# </div>
+# """
+
+st.markdown(
+    """
+    <style>
+ 
+    
+    .button {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #b153ea;
+        color: #fff;
+        text-align: center;
+        text-decoration: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+   
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+# Display the shape using markdown
+# st.markdown(shape_html, unsafe_allow_html=True)
+
 def is_user_logged_in():
     try:
         user = auth.current_user
@@ -31,13 +73,13 @@ def is_user_logged_in():
     except:
         return False
 
- 
 def app():
-    st.markdown("<h1 style='text-align: center; color: purple;'>Course Dekho</h1>", unsafe_allow_html=True)
+    
+    st.markdown("<h1 style='text-align: center; font-size:80px ; font-weight:30px;margin:0px;padding:0px; color: #6f07bb;'>Course Dekho</h1><br> <center><p style='font-size:25px;font-weight: normal; font-style:italic;color: #fffff'> ""Where learning meets personalisation""</center>", unsafe_allow_html=True)
     if not is_user_logged_in():
         # Select login or signup
-        menu = ["Login", "Signup"]
-        choice = st.selectbox("Choose an option", menu)
+        choice = option_menu(None,["Login", "Signup"],orientation='horizontal')
+
 
         if choice == "Signup":
             st.subheader("Signup")
@@ -67,11 +109,6 @@ def app():
                 except Exception as e:
                     st.error(f"Signup Failed: {str(e)}")
 
-# if 'user_local_id' in st.session_state:
-#     # You can access the user's local ID here
-#     # user_local_id = st.session_state.user_local_id
-#     # Continue with your dashboard code using user_local_id
-#     st.write(f"User's local ID: {user_local_id}")
 
 
         elif choice == "Login":
@@ -87,8 +124,35 @@ def app():
                     # auth.get_user(user.uid)
                     # console.log(user)
                     st.success("Login Successful")
-                    st.markdown(f'<a href="Dashboard?user_id={user["localId"]}" target="_self">Get Started</a>', unsafe_allow_html=True)
-
+                    # st.markdown(f'<a href="Dashboard?user_id={user["localId"]}" target="_self">Get Started</a>', unsafe_allow_html=True)
+                    st.markdown(f'<a href="Dashboard?user_id={user["localId"]}" target="_self" class="button">Get Started</a>',unsafe_allow_html=True)
+                    st.markdown( """
+    <style>
+    .button {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: #FFFFFF; 
+        color: #FFFFFF;
+        text-align: center;
+        text-decoration: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-color:white;
+        text-decoration:none;
+        border:1px solid #C88EE6;
+    }
+    .button:hover {
+        background-color: #CDBFEC;
+        text-decoration:none;
+    }
+    .button a {
+        color: #fff; 
+        text-decoration: none;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
                 except Exception as e:
                     st.error(f"Login Failed: {str(e)}")
 

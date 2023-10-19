@@ -41,6 +41,33 @@ query_params = st.experimental_get_query_params()
 user_id = query_params['user_id'][0] if 'user_id' in query_params else None
 # user = query_params['user'][0] if 'user' in query_params else None
 
+#     }
+    
+#     .card img {
+#   width: 40px;
+#   fill: #333;
+#   transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+# }
+
+#     .card:hover {
+#   transform: scale(1.05);
+#   box-shadow: 0 8px 16px rgba(255, 255, 255, 0.2);
+# }
+#
+#
+# .card_content {
+#   position: absolute;
+#   top: 0;
+#   left: 0;
+#   width: 100%;
+#   height: 100%;
+#   padding: 20px;
+#   box-sizing: border-box;
+#   background-color: #f2f2f2;
+#   transform: rotateX(-90deg);
+#   transform-origin: bottom;
+#   transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+# }
 st.markdown(
     """
     <style>
@@ -66,11 +93,15 @@ st.markdown(
         .card {
             border: 1px solid #ccc;
         padding: 20px;
+        
         margin-bottom: 20px;
         border-radius: 10px;
         background-color: white;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        width: 550px;}
+        width: 550px;
+        
+# min-height: 100vh; 
+}
   
 
 .card:hover {
@@ -83,36 +114,14 @@ st.markdown(
 }
    
         
-#     }
-    
-#     .card img {
-#   width: 48px;
-#   fill: #333;
-#   transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-# }
 
-#     .card:hover {
-#   transform: scale(1.05);
-#   box-shadow: 0 8px 16px rgba(255, 255, 255, 0.2);
-# }
-#
-#
-# .card_content {
-#   position: absolute;
-#   top: 0;
-#   left: 0;
-#   width: 100%;
-#   height: 100%;
-#   padding: 20px;
-#   box-sizing: border-box;
-#   background-color: #f2f2f2;
-#   transform: rotateX(-90deg);
-#   transform-origin: bottom;
-#   transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-# }
 
     .card h3 {
-        color: ##b153ea;
+        # color: ##b153ea;
+
+         margin: 0% 0 2% 10%; 
+    font-size: 24px; 
+    color: #0C356A;
     }
     .card a {
         color: ##b153ea;
@@ -124,14 +133,40 @@ st.markdown(
         border: none;
         border-radius: 5px;
         cursor: pointer;
+        
     }
     .button:hover {
         
         background-color: #b153ea;
     }
+
+    .price-row { 
+    width: 81%; 
+    margin: auto; 
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
+    grid-gap: 30px; 
+}
+.price-col { 
+    transition: box-shadow .5s; 
+    transition: transform; 
+    background: white; 
+    padding: 0% 0%; 
+    border-radius: 10px; 
+    color: #091c23; 
+    text-align: center; 
+} 
+
+.price-col:hover { 
+    box-shadow: 0 0 20px rgba(9, 157, 194, 0.2); 
+    transform: scale(1.04); 
+}
+  
+ 
+
     
     .thumbnail img {
-    width: 500px;
+    width: 400px;
   height: 250px;
   object-fit: cover;
     border-radius: 10px; /* Optional: Add border-radius to the image */
@@ -147,8 +182,8 @@ if 'interested_courses' not in st.session_state:
     st.session_state.interested_courses = []
 
 
-if user_id is not None:
-    st.write(f"User ID from URL: {user_id}")
+# if user_id is not None:
+#     st.write(f"User ID from URL: {user_id}")
 
 # Load your dataset
 def load_data(data):
@@ -183,45 +218,12 @@ def get_recommendation(title, cosine_sim_mat, df, num_of_rec=10):
 
     return recommended_courses.head(num_of_rec)
 
-    # Get the dataframe & title
-    # result_df = df.iloc[selected_course_indices]
-    # result_df['similarity_score'] = selected_course_scores
-    # final_recommended_courses = result_df[['course_title', 'similarity_score', 'url']]
-    # return final_recommended_courses
-
-
-
-# Function to get recommendations using cosine similarity
-# def get_recommendation(title, cosine_sim_mat, df, num_of_rec=10):
-#     # indices of the course
-#     course_indices = pd.Series(df.index, index=df['course_title']).drop_duplicates()
-#     # Index of course
-#     idx = course_indices[title]
-
-#     # Look into the cosine matrix for that index
-#     sim_scores = list(enumerate(cosine_sim_mat[idx]))
-#     sim_scores = sorted(sim_scores, key=lambda x: x[1], reverse=True)
-#     selected_course_indices = [i[0] for i in sim_scores[1:num_of_rec + 1]]
-#     selected_course_scores = [i[1] for i in sim_scores[1:num_of_rec + 1]]
-
-#     # Get the dataframe & title
-#     result_df = df.iloc[selected_course_indices]
-#     result_df['similarity_score'] = selected_course_scores
-#     final_recommended_courses = result_df[['course_title', 'similarity_score', 'url']]
-#     return final_recommended_courses.head(num_of_rec)
-
 
 @st.cache_data
-# def search_term_if_not_found(term,df):
-# 	result_df = df[df['subject'].str.contains(term, case=False) | df['course_title'].str.contains(term, case=False)]
-#     # df[df['course_title'].str.contains(term)]
-# 	return result_df
 def search_term_if_not_found(search_term, df):
     search_results = df[df['subject'].str.contains(search_term, case=False) | df['course_title'].str.contains(search_term, case=False)]
-    if not search_results.empty:
-        return search_results
-    else:
-        return pd.DataFrame()
+    return search_results
+
 
 def fb(course_title):     
         ref = db.child('history').push({
@@ -240,6 +242,8 @@ def display_course_cards(data):
         st.markdown(
             f"""
             <div class="card">
+                <div class="price-row"> 
+                <div class="price-col"> 
                 <div class="thumbnail">
                     <img src="{row['img']}" alt="Thumbnail">
                 </div>
@@ -250,6 +254,8 @@ def display_course_cards(data):
                     <p><strong>Level:</strong> {row['level']}</p>
                     <p><strong>Subject:</strong> {row['subject']}</p>
                     <p><strong>Language:</strong> {row['language']}</p>
+                    </div>
+                    </div>
                     </div>
             </div>
             """, unsafe_allow_html=True
@@ -273,7 +279,7 @@ def display_course_cards(data):
 
 
 def app():
-    st.markdown("<h1 style='text-align: left; color: #6f07bb;'>Course Dekho</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align: center; color: #6f07bb;'>Course Dekho</h1>", unsafe_allow_html=True)
     
     choice = option_menu(None,["Home", "Search"],
                          icons=['house','search'],orientation='horizontal')
@@ -282,7 +288,7 @@ def app():
     df = load_data("data/course_data.csv")
     
     if choice == "Home":
-        st.subheader("Home")
+        
         st.markdown("<h3 style='text-align: left; color: #b153ea;'>Recommended Courses:</h>", unsafe_allow_html=True)
          
        
@@ -299,9 +305,9 @@ def app():
                         course_titles.append(value["course_title"])
 
                 if course_titles:
-                    st.write("Course Titles for user_id:", user_id)
+                    # st.write("Course Titles for user_id:", user_id)
                     for title in course_titles:
-                        st.write(title)
+                        # st.write(title)
                         cosine_sim_mat = vectorize_text_to_cosine_mat(df,title)   
                         recommendations = get_recommendation(title,cosine_sim_mat,df,5)
                         display_course_cards(recommendations)
