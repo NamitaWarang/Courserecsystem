@@ -39,35 +39,7 @@ storage = firebase.storage()
 st.set_page_config(initial_sidebar_state="collapsed") 
 query_params = st.experimental_get_query_params()
 user_id = query_params['user_id'][0] if 'user_id' in query_params else None
-# user = query_params['user'][0] if 'user' in query_params else None
 
-#     }
-    
-#     .card img {
-#   width: 40px;
-#   fill: #333;
-#   transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-# }
-
-#     .card:hover {
-#   transform: scale(1.05);
-#   box-shadow: 0 8px 16px rgba(255, 255, 255, 0.2);
-# }
-#
-#
-# .card_content {
-#   position: absolute;
-#   top: 0;
-#   left: 0;
-#   width: 100%;
-#   height: 100%;
-#   padding: 20px;
-#   box-sizing: border-box;
-#   background-color: #f2f2f2;
-#   transform: rotateX(-90deg);
-#   transform-origin: bottom;
-#   transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-# }
 st.markdown(
     """
     <style>
@@ -93,15 +65,11 @@ st.markdown(
         .card {
             border: 1px solid #ccc;
         padding: 20px;
-        
         margin-bottom: 20px;
         border-radius: 10px;
         background-color: white;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        width: 550px;
-        
-# min-height: 100vh; 
-}
+        width: 550px;}
   
 
 .card:hover {
@@ -113,15 +81,9 @@ st.markdown(
   transform: scale(0.95) rotateZ(1.7deg);
 }
    
-        
-
 
     .card h3 {
-        # color: ##b153ea;
-
-         margin: 0% 0 2% 10%; 
-    font-size: 24px; 
-    color: #0C356A;
+        color: ##b153ea;
     }
     .card a {
         color: ##b153ea;
@@ -133,40 +95,14 @@ st.markdown(
         border: none;
         border-radius: 5px;
         cursor: pointer;
-        
     }
     .button:hover {
         
         background-color: #b153ea;
     }
-
-    .price-row { 
-    width: 81%; 
-    margin: auto; 
-    display: grid; 
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
-    grid-gap: 30px; 
-}
-.price-col { 
-    transition: box-shadow .5s; 
-    transition: transform; 
-    background: white; 
-    padding: 0% 0%; 
-    border-radius: 10px; 
-    color: #091c23; 
-    text-align: center; 
-} 
-
-.price-col:hover { 
-    box-shadow: 0 0 20px rgba(9, 157, 194, 0.2); 
-    transform: scale(1.04); 
-}
-  
- 
-
     
     .thumbnail img {
-    width: 400px;
+    width: 500px;
   height: 250px;
   object-fit: cover;
     border-radius: 10px; /* Optional: Add border-radius to the image */

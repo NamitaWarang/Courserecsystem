@@ -26,21 +26,7 @@ auth = firebase.auth()
 db = firebase.database()
 storage = firebase.storage()
 
-# shape_html = """
-# <div style="width: 0;
-#             height: 0;
-#             border-left: 800px solid transparent;
-#             border-right: 233px solid transparent;
-#             border-bottom: 120px solid ;
-#             opacity: 0.3;
-#             position: absolute;
-#             bottom: 0.2;
-#             left: 50%;
-#             transform: translate(-50%);
-#             transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-#             color: ">
-# </div>
-# """
+
 
 st.markdown(
     """
@@ -75,7 +61,7 @@ def is_user_logged_in():
 
 def app():
     
-    st.markdown("<h1 style='text-align: center; font-size:80px ; font-weight:30px;margin:0px;padding:0px; color: #6f07bb;'>Course Dekho</h1><br> <center><p style='font-size:25px;font-weight: normal; font-style:italic;color: #fffff'> ""Where learning meets personalisation""</center>", unsafe_allow_html=True)
+    st.markdown("<h1 style='text-align: center; font-size:80px ; font-weight:30px;margin:0px;padding:0px; color: #6f07bb;'>Course Dekho.com</h1><br> <center><p style='font-size:25px;font-weight: normal; font-style:italic;color: #fffff'> ""Where learning meets personalisation""</center>", unsafe_allow_html=True)
     if not is_user_logged_in():
         # Select login or signup
         choice = option_menu(None,["Login", "Signup"],orientation='horizontal')
